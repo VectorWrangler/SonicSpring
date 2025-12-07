@@ -23,8 +23,6 @@ public class Song {
     private String url;
     
     private String lyric;
-
-    private String cover;
     
     @TableField("create_time")
     private LocalDateTime createTime;

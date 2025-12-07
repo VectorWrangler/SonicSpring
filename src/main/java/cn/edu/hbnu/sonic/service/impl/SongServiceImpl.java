@@ -40,8 +40,7 @@ public class SongServiceImpl extends ServiceImpl<SongMapper, Song> implements So
         dto.setName(song.getName()); // 使用数据库查出来的name
         dto.setDuration(song.getDuration());
         dto.setUrl(MediaUrlUtils.getInstance().processLyric(song.getUrl()));
-        dto.setLyric(song.getLyric()); // 歌词内容不需要添加URL前缀
-        dto.setCover(MediaUrlUtils.getInstance().processLyric(song.getCover()));
+        dto.setLyric(song.getLyric());
         dto.setCreateTime(song.getCreateTime());
         dto.setUpdateTime(song.getUpdateTime());
         
@@ -76,16 +75,24 @@ public class SongServiceImpl extends ServiceImpl<SongMapper, Song> implements So
         // 设置专辑信息
         IdNameDTO album = new IdNameDTO();
         album.setId(song.getAlbumId());
-        // 查询真实的专辑名称
+        // 查询真实的专辑名称和封面
         if (song.getAlbumId() != null) {
             Album albumEntity = albumService.getById(song.getAlbumId());
             if (albumEntity != null) {
                 album.setName(albumEntity.getName());
+                // 从专辑中获取封面信息
+                String coverUrl = albumEntity.getCover();
+                if (coverUrl != null && !coverUrl.startsWith("http")) {
+                    coverUrl = MediaUrlUtils.getInstance().processLyric(coverUrl);
+                }
+                dto.setCover(coverUrl);
             } else {
                 album.setName("");
+                dto.setCover(null);
             }
         } else {
             album.setName("");
+            dto.setCover(null);
         }
         dto.setAlbum(album);
         

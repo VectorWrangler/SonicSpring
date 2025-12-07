@@ -2,6 +2,7 @@ package cn.edu.hbnu.sonic.common;
 
 import cn.edu.hbnu.sonic.entity.Song;
 import cn.edu.hbnu.sonic.entity.Mv;
+import cn.edu.hbnu.sonic.entity.User;
 import cn.edu.hbnu.sonic.config.MediaApiConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,35 @@ public class MediaUrlUtils {
     }
     
     /**
-     * 为歌曲的url和cover添加媒体服务器地址前缀
+     * 为路径添加媒体服务器地址前缀
+     * @param path 原始路径
+     * @return 添加前缀后的完整路径
+     */
+    private String addMediaServerPrefix(String path) {
+        if (path == null || path.startsWith("http")) {
+            return path;
+        }
+        
+        String mediaApiUrl = mediaApiConfig.getApi();
+        return mediaApiUrl + path;
+    }
+    
+    /**
+     * 为用户头像添加媒体服务器地址前缀
+     * @param user 用户对象
+     * @return 处理后的用户对象
+     */
+    public User processUserAvatarUrl(User user) {
+        if (user == null) {
+            return null;
+        }
+        
+        user.setAvatar(addMediaServerPrefix(user.getAvatar()));
+        return user;
+    }
+    
+    /**
+     * 为歌曲的url添加媒体服务器地址前缀
      * @param song 歌曲对象
      * @return 处理后的歌曲对象
      */
@@ -50,19 +79,12 @@ public class MediaUrlUtils {
             return null;
         }
         
-        String mediaApiUrl = mediaApiConfig.getApi();
-        
-        if (song.getUrl() != null && !song.getUrl().startsWith("http")) {
-            song.setUrl(mediaApiUrl + song.getUrl());
-        }
-        if (song.getCover() != null && !song.getCover().startsWith("http")) {
-            song.setCover(mediaApiUrl + song.getCover());
-        }
+        song.setUrl(addMediaServerPrefix(song.getUrl()));
         return song;
     }
     
     /**
-     * 为歌曲列表中的每个歌曲的url和cover添加媒体服务器地址前缀
+     * 为歌曲列表中的每个歌曲的url添加媒体服务器地址前缀
      * @param songs 歌曲列表
      * @return 处理后的歌曲列表
      */
@@ -86,14 +108,8 @@ public class MediaUrlUtils {
             return null;
         }
         
-        String mediaApiUrl = mediaApiConfig.getApi();
-        
-        if (mv.getVideoUrl() != null && !mv.getVideoUrl().startsWith("http")) {
-            mv.setVideoUrl(mediaApiUrl + mv.getVideoUrl());
-        }
-        if (mv.getCover() != null && !mv.getCover().startsWith("http")) {
-            mv.setCover(mediaApiUrl + mv.getCover());
-        }
+        mv.setVideoUrl(addMediaServerPrefix(mv.getVideoUrl()));
+        mv.setCover(addMediaServerPrefix(mv.getCover()));
         return mv;
     }
     
@@ -118,11 +134,6 @@ public class MediaUrlUtils {
      * @return 处理后的歌词内容
      */
     public String processLyric(String lyric) {
-        if (lyric == null || lyric.startsWith("http")) {
-            return lyric;
-        }
-        
-        String mediaApiUrl = mediaApiConfig.getApi();
-        return mediaApiUrl + lyric;
+        return addMediaServerPrefix(lyric);
     }
 }

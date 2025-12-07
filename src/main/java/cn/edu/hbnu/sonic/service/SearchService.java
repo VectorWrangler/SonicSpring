@@ -1,6 +1,8 @@
 package cn.edu.hbnu.sonic.service;
 
+import cn.edu.hbnu.sonic.dto.SongDTO;
 import cn.edu.hbnu.sonic.entity.*;
+import java.util.List;
 import java.util.Map;
 
 public interface SearchService {
@@ -14,4 +16,13 @@ public interface SearchService {
      * @return 搜索结果
      */
     Map<String, Object> search(String keywords, Integer limit, Integer offset, Integer type);
+    
+    /**
+     * 搜索单曲并返回SongDTO列表
+     * @param keywords 搜索关键词
+     * @param limit 返回数量
+     * @param offset 偏移数量
+     * @return SongDTO列表
+     */
+    List<SongDTO> searchSongs(String keywords, Integer limit, Integer offset);
 }

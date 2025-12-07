@@ -20,6 +20,8 @@ public class User {
     
     private String avatar;
     
+    private String role;
+    
     @TableField("create_time")
     private LocalDateTime createTime;
     

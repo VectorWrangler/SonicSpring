@@ -1,6 +1,7 @@
 package cn.edu.hbnu.sonic.service.impl;
 
 import cn.edu.hbnu.sonic.common.MediaUrlUtils;
+import cn.edu.hbnu.sonic.dto.SongDTO;
 import cn.edu.hbnu.sonic.entity.*;
 import cn.edu.hbnu.sonic.service.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -37,7 +38,13 @@ public class SearchServiceImpl implements SearchService {
 
         return switch (type) {
             case 1 -> // 单曲
-                    searchSongs(keywords, limit, offset);
+                    {
+                        List<SongDTO> songs = this.searchSongs(keywords, limit, offset);
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("songs", songs);
+                        result.put("totalCount", songs.size());
+                        yield result;
+                    }
             case 10 -> // 专辑
                     searchAlbums(keywords, limit, offset);
             case 100 -> // 歌手
@@ -47,14 +54,18 @@ public class SearchServiceImpl implements SearchService {
             case 1002 -> // MV
                     searchMvs(keywords, limit, offset);
             default -> // 默认搜索单曲
-                    searchSongs(keywords, limit, offset);
+                    {
+                        List<SongDTO> songs = this.searchSongs(keywords, limit, offset);
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("songs", songs);
+                        result.put("totalCount", songs.size());
+                        yield result;
+                    }
         };
     }
     
-    /**
-     * 搜索歌曲
-     */
-    private Map<String, Object> searchSongs(String keywords, Integer limit, Integer offset) {
+    @Override
+    public List<SongDTO> searchSongs(String keywords, Integer limit, Integer offset) {
         // 构建查询条件
         List<Song> songs = songService.lambdaQuery()
                 .like(Song::getName, keywords)
@@ -63,20 +74,8 @@ public class SearchServiceImpl implements SearchService {
                 .last("LIMIT " + limit + " OFFSET " + offset)
                 .list();
         
-        // 处理歌曲URL
-        List<Song> processedSongs = MediaUrlUtils.getInstance().processSongListUrls(songs);
-        
-        // 获取总数
-        long totalCount = songService.lambdaQuery()
-                .like(Song::getName, keywords)
-                .or()
-                .like(Song::getLyric, keywords)
-                .count();
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("songs", processedSongs);
-        result.put("totalCount", totalCount);
-        return result;
+        // 转换为SongDTO列表
+        return songService.convertToDTOs(songs);
     }
     
     /**

@@ -43,7 +43,7 @@ public class SongController {
         if (song == null) {
             return Result.notFound("歌曲不存在");
         }
-        // 为歌曲的url和cover添加媒体服务器地址前缀
+        // 为歌曲的url添加媒体服务器地址前缀
         Song processedSong = MediaUrlUtils.getInstance().processSongUrls(song);
         return Result.success(processedSong);
     }
